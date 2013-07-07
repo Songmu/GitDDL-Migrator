@@ -24,3 +24,5 @@ cover_db/
 MYMETA.*
 
 /GitDDL-Migrator-*
+
+tmp/

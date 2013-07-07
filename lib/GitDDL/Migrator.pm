@@ -26,6 +26,32 @@ has _db => (
     },
 );
 
+has _real_translator => (
+    is      => 'ro',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        my $translator = SQL::Translator->new(
+            parser      => 'DBI',
+            parser_args => +{ dbh => $self->_dbh },
+        );
+        $translator->translate;
+        $translator->producer($self->_db);
+
+        if ($self->_db eq 'MySQL') {
+            # cut off AUTO_INCREMENT. see. http://bugs.mysql.com/bug.php?id=20786
+            my $schema = $translator->schema;
+            for my $table ($schema->get_tables) {
+                my @options = $table->options;
+                if (my ($idx) = grep { $options[$_]->{AUTO_INCREMENT} } 0..$#options) {
+                    splice $table->options, $idx, 1;
+                }
+            }
+        }
+        $translator;
+    },
+);
+
 no Mouse;
 
 sub database_version {
@@ -142,7 +168,7 @@ sub upgrade_database {
     my ($self, %args) = @_;
 
     my $version = $args{version};
-    my $sql     = $args{sql} || $self->diff($version);
+    my $sql     = $args{sql} || $self->diff(version => $version);
 
     $self->_do_sql($sql);
     $self->insert_version($version);
