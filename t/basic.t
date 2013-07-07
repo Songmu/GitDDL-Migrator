@@ -6,6 +6,7 @@ use Test::Git;
 use File::Spec;
 use File::Path 'make_path';
 use DBI;
+use Time::HiRes;
 
 eval q[use DBD::SQLite;];
 if ($@) {
@@ -77,6 +78,7 @@ ok !$gd->check_version, 'check_version not ok ok';
 
 like $gd->diff, qr/CREATE TABLE second/, 'diff looks ok';
 
+sleep 0.001;
 $gd->upgrade_database;
 
 $gd->_dbh->do('INSERT INTO second (id, name) VALUES (1, "test")')
