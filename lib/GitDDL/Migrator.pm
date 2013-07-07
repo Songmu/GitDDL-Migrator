@@ -1,5 +1,5 @@
 package GitDDL::Migrator;
-use 5.008005;
+use 5.008001;
 use strict;
 use warnings;
 
@@ -13,6 +13,19 @@ use Try::Tiny;
 
 use Mouse;
 extends 'GitDDL';
+
+has _db => (
+    is => 'ro',
+    default => sub {
+        my $self = shift;
+        my $dsn0 = $self->dsn->[0];
+        my $db
+            = $dsn0 =~ /:mysql:/ ? 'MySQL'
+            : $dsn0 =~ /:Pg:/    ? 'PostgreSQL'
+            :                      do { my ($d) = $dsn0 =~ /dbi:(.*?):/; $d };
+    },
+);
+
 no Mouse;
 
 sub database_version {
@@ -61,6 +74,15 @@ __SQL__
     $self->insert_version;
 }
 
+sub _new_translator {
+    my $self = shift;
+
+    my $translator = SQL::Translator->new;
+    $translator->parser($self->_db) or croak $translator->error;
+
+    $translator;
+}
+
 sub diff {
     my ($self, $version) = @_;
 
@@ -70,22 +92,13 @@ sub diff {
         }
     }
 
-    my $dsn0 = $self->dsn->[0];
-    my $db
-        = $dsn0 =~ /:mysql:/ ? 'MySQL'
-        : $dsn0 =~ /:Pg:/    ? 'PostgreSQL'
-        :                      do { my ($d) = $dsn0 =~ /dbi:(.*?):/; $d };
-
     my $tmp_fh = File::Temp->new;
     $self->_dump_sql_for_specified_coomit($self->database_version, $tmp_fh->filename);
 
-    my $source = SQL::Translator->new;
-    $source->parser($db) or croak $source->error;
+    my $source = $self->_new_translator;
     $source->translate($tmp_fh->filename) or croak $source->error;
 
-    my $target = SQL::Translator->new;
-    $target->parser($db) or croak $target->error;
-
+    my $target = $self->_new_translator;
     if (!$version) {
         $target->translate(File::Spec->catfile($self->work_tree, $self->ddl_file))
             or croak $target->error;
@@ -97,7 +110,7 @@ sub diff {
     }
 
     my $diff = SQL::Translator::Diff->new({
-        output_db     => $db,
+        output_db     => $self->_db,
         source_schema => $source->schema,
         target_schema => $target->schema,
     })->compute_differences->produce_diff_sql;
