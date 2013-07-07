@@ -109,9 +109,12 @@ sub diff {
 }
 
 sub upgrade_database {
-    my ($self, $version) = @_;
+    my ($self, %args) = @_;
 
-    $self->_do_sql($self->diff($version));
+    my $version = $args{version};
+    my $sql     = $args{sql} || $self->diff($version);
+
+    $self->_do_sql($sql);
     $self->insert_version($version);
 }
 
