@@ -251,6 +251,10 @@ sub _restore_full_hash {
     $self->_git->run('rev-parse', $version);
 }
 
+sub vacuum {
+    ...
+}
+
 1;
 __END__
 
