@@ -111,7 +111,10 @@ sub _diff {
 }
 
 sub diff {
-    my ($self, $version) = @_;
+    my ($self, %args) = @_;
+
+    my $version = $args{version};
+    my $reverse = $args{reverse};
 
     if (!$version) {
         if ($self->check_version) {
@@ -131,7 +134,8 @@ sub diff {
         $target = $self->_new_translator_of_version($version);
     }
 
-    $self->_diff($source, $target);
+    my ($from, $to) = !$reverse ? ($source, $target) : ($target, $source);
+    $self->_diff($from, $to);
 }
 
 sub upgrade_database {
