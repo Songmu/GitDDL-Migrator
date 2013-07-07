@@ -78,8 +78,14 @@ ok !$gd->check_version, 'check_version not ok ok';
 
 like $gd->diff, qr/CREATE TABLE second/, 'diff looks ok';
 
+eval {
+    $gd->rollback_diff;
+};
+like $@, qr/No rollback/;
+
 sleep 0.001;
 $gd->upgrade_database;
+like $gd->rollback_diff, qr/DROP TABLE.*second.*/;
 
 $gd->_dbh->do('INSERT INTO second (id, name) VALUES (1, "test")')
     or die $gd->_dbh->errstr;
@@ -88,15 +94,5 @@ ok $gd->check_version, 'check_version ok again';
 
 $gd->check_ddl_mismatch;
 pass 'no mismatch';
-
-$gd = GitDDL::Migrator->new(
-    work_tree => $repo->work_tree,
-    ddl_file  => File::Spec->catfile('sql', 'ddl.sql'),
-    dsn       => [$mysqld->dsn],
-);
-eval {
-    $gd->check_ddl_mismatch;
-};
-like $@, qr/^Mismatch between ddl version and real database is found/ and diag $@;
 
 done_testing;

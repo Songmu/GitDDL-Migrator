@@ -7,11 +7,7 @@ use File::Spec;
 use File::Path 'make_path';
 use DBI;
 use Time::HiRes;
-
-eval q[use Test::mysqld;];
-if ($@) {
-    plan skip_all => 'Test::mysqld is required to run this test';
-}
+use Test::Requires 'Test::mysqld';
 
 has_git;
 
@@ -79,8 +75,14 @@ ok !$gd->check_version, 'check_version not ok ok';
 
 like $gd->diff, qr/CREATE TABLE `second`/, 'diff looks ok';
 
+eval {
+    $gd->rollback_diff;
+};
+like $@, qr/No rollback/;
+
 sleep 0.001;
 $gd->upgrade_database;
+like $gd->rollback_diff, qr/DROP TABLE.*second.*/;
 
 $gd->_dbh->do('INSERT INTO second (id, name) VALUES (1, "test")')
     or die $gd->_dbh->errstr;
@@ -104,6 +106,7 @@ $gd = GitDDL::Migrator->new(
 eval {
     $gd->check_ddl_mismatch;
 };
-like $@, qr/^Mismatch between ddl version and real database is found/ and diag $@;
+like $@, qr/^Mismatch between ddl version and real database is found/;
+like $@, qr/CREATE TABLE.*third/;
 
 done_testing;
