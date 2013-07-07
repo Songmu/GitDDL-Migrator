@@ -83,31 +83,20 @@ sub _new_translator {
     $translator;
 }
 
-sub diff {
+sub _new_translator_of_version {
     my ($self, $version) = @_;
 
-    if (!$version) {
-        if ($self->check_version) {
-            croak 'ddl_version == database_version, should no differences';
-        }
-    }
-
     my $tmp_fh = File::Temp->new;
-    $self->_dump_sql_for_specified_coomit($self->database_version, $tmp_fh->filename);
+    $self->_dump_sql_for_specified_coomit($version, $tmp_fh->filename);
 
-    my $source = $self->_new_translator;
-    $source->translate($tmp_fh->filename) or croak $source->error;
+    my $translator = $self->_new_translator;
+    $translator->translate($tmp_fh->filename) or croak $translator->error;
 
-    my $target = $self->_new_translator;
-    if (!$version) {
-        $target->translate(File::Spec->catfile($self->work_tree, $self->ddl_file))
-            or croak $target->error;
-    }
-    else {
-        my $tmp_fh = File::Temp->new;
-        $self->_dump_sql_for_specified_coomit($version, $tmp_fh->filename);
-        $target->translate($tmp_fh->filename) or croak $target->error;
-    }
+    $translator;
+}
+
+sub _diff {
+    my ($self, $source, $target) = @_;
 
     my $diff = SQL::Translator::Diff->new({
         output_db     => $self->_db,
@@ -119,6 +108,30 @@ sub diff {
     $diff =~ s/.*?\n//;
 
     $diff
+}
+
+sub diff {
+    my ($self, $version) = @_;
+
+    if (!$version) {
+        if ($self->check_version) {
+            croak 'ddl_version == database_version, should no differences';
+        }
+    }
+
+    my $source = $self->_new_translator_of_version($self->database_version);
+
+    my $target;
+    if (!$version) {
+        $target = $self->_new_translator;
+        $target->translate(File::Spec->catfile($self->work_tree, $self->ddl_file))
+            or croak $target->error;
+    }
+    else {
+        $target = $self->_new_translator_of_version($version);
+    }
+
+    $self->_diff($source, $target);
 }
 
 sub upgrade_database {
