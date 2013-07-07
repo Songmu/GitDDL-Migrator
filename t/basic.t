@@ -95,4 +95,8 @@ ok $gd->check_version, 'check_version ok again';
 $gd->check_ddl_mismatch;
 pass 'no mismatch';
 
+my $version = $gd->ddl_version;
+my ($short_version) = $version =~ /^(.{10})/;
+is $gd->_restore_full_hash($short_version), $version;
+
 done_testing;

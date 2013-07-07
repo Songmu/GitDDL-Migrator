@@ -224,6 +224,9 @@ sub insert_version {
     my ($self, $version) = @_;
 
     $version ||= $self->ddl_version;
+    unless (length($version) == 40) {
+        $version = $self->_restore_full_hash($version);
+    }
 
     # steal from DBIx::Schema::Versioned
     my @tm = gettimeofday();
@@ -241,6 +244,11 @@ sub insert_version {
     $self->_dbh->do(
         "INSERT INTO @{[ $self->version_table ]} (version, upgraded_at) VALUES (?, ?)", {}, $version, $upgraded_at
     ) or croak $self->_dbh->errstr;
+}
+
+sub _restore_full_hash {
+    my ($self, $version) = @_;
+    $self->_git->run('rev-parse', $version);
 }
 
 1;
