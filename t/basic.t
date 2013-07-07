@@ -86,4 +86,17 @@ $gd->_dbh->do('INSERT INTO second (id, name) VALUES (1, "test")')
 
 ok $gd->check_version, 'check_version ok again';
 
+$gd->check_ddl_mismatch;
+pass 'no mismatch';
+
+$gd = GitDDL::Migrator->new(
+    work_tree => $repo->work_tree,
+    ddl_file  => File::Spec->catfile('sql', 'ddl.sql'),
+    dsn       => [$mysqld->dsn],
+);
+eval {
+    $gd->check_ddl_mismatch;
+};
+like $@, qr/^Mismatch between ddl version and real database is found/ and diag $@;
+
 done_testing;

@@ -29,8 +29,8 @@ my $gd = GitDDL::Migrator->new(
 my $first_sql = <<__SQL__;
 CREATE TABLE first (
     id INTEGER NOT NULL,
-    name VARCHAR(191)
-);
+    name VARCHAR(191) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8;
 __SQL__
 
 make_path(File::Spec->catfile($repo->work_tree, 'sql'));
@@ -63,8 +63,8 @@ ok $gd->check_version, 'check_version ok';
 my $second_sql = <<__SQL__;
 CREATE TABLE second (
     id INTEGER NOT NULL,
-    name VARCHAR(191)
-);
+    name VARCHAR(191) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8;
 __SQL__
 
 open $fh, '>>', File::Spec->catfile($repo->work_tree, 'sql', 'ddl.sql') or die $!;
@@ -86,5 +86,24 @@ $gd->_dbh->do('INSERT INTO second (id, name) VALUES (1, "test")')
     or die $gd->_dbh->errstr;
 
 ok $gd->check_version, 'check_version ok again';
+
+$gd->check_ddl_mismatch;
+pass 'no mismatch';
+
+$gd->_dbh->do('CREATE TABLE third (
+    id INTEGER NOT NULL,
+    name VARCHAR(191) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8;');
+
+
+$gd = GitDDL::Migrator->new(
+    work_tree => $repo->work_tree,
+    ddl_file  => File::Spec->catfile('sql', 'ddl.sql'),
+    dsn       => [$mysqld->dsn],
+);
+eval {
+    $gd->check_ddl_mismatch;
+};
+like $@, qr/^Mismatch between ddl version and real database is found/ and diag $@;
 
 done_testing;

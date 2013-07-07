@@ -164,6 +164,37 @@ sub diff {
     $self->_diff($from, $to);
 }
 
+sub real_diff {
+    my $self = shift;
+
+    my $source = $self->_new_translator_of_version($self->database_version);
+    my $real   = $self->_real_translator;
+
+    my $diff = SQL::Translator::Diff->new({
+        output_db     => $self->_db,
+        source_schema => $source->schema,
+        target_schema => $real->schema,
+    })->compute_differences;
+
+    my @tabls_to_create = @{ $diff->tables_to_create };
+    @tabls_to_create = grep {$_->name ne $self->version_table} @tabls_to_create;
+    $diff->tables_to_create(\@tabls_to_create);
+
+    my $diff_str = $diff->produce_diff_sql;
+    # ignore first line
+    $diff_str =~ s/.*?\n//;
+
+    $diff_str;
+}
+
+sub check_ddl_mismatch {
+    my $self = shift;
+
+    my $real_diff = $self->real_diff;
+    croak "Mismatch between ddl version and real database is found. Diff is:\n $real_diff"
+        unless $real_diff =~ /\A\s*-- No differences found;\s*\z/ms;
+}
+
 sub upgrade_database {
     my ($self, %args) = @_;
 
