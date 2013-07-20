@@ -61,38 +61,24 @@ has _real_translator => (
 no Mouse;
 
 sub database_version {
-    my ($self) = @_;
+    my ($self, %args) = @_;
+
+    my $back = defined $args{back} ? $args{back} : 0;
 
     croak sprintf 'invalid version_table: %s', $self->version_table
         unless $self->version_table =~ /^[a-zA-Z_]+$/;
 
-    my ($version) =
-        $self->_dbh->selectrow_array('SELECT version FROM ' . $self->version_table . ' ORDER BY upgraded_at DESC');
+    my @versions = $self->_dbh->selectrow_array('SELECT version FROM ' . $self->version_table . ' ORDER BY upgraded_at DESC');
 
-    if (defined $version) {
-        return $version;
-    }
-    else {
-        croak "Failed to get database version, please deploy first";
-    }
+    return $versions[$back];
 }
 
 sub deploy {
     my ($self) = @_;
 
-    my $version = try {
-        open my $fh, '>', \my $stderr;
-        local *STDERR = $fh;
-        $self->database_version;
-        close $fh;
-    };
-
-    if ($version) {
+    if ($self->database_version) {
         croak "database already deployed, use upgrade_database instead";
     }
-
-    croak sprintf 'invalid version_table: %s', $self->version_table
-        unless $self->version_table =~ /^[a-zA-Z_]+$/;
 
     $self->_do_sql($self->_slurp(File::Spec->catfile($self->work_tree, $self->ddl_file)));
 
@@ -148,12 +134,9 @@ sub diff {
     my $version = $args{version};
     my $reverse = $args{reverse};
 
-    if (!$version) {
-        if ($self->check_version) {
-            croak 'ddl_version == database_version, should no differences';
-        }
+    if (!$version && $self->check_version) {
+        return '';
     }
-
     my $source = $self->_new_translator_of_version($self->database_version);
 
     my $target;
@@ -222,6 +205,7 @@ sub rollback_diff {
 
 sub upgrade_database {
     my ($self, %args) = @_;
+    croak 'Failed to get database version, please deploy first' unless $self->database_version;
 
     my $version = $args{version};
     my $sql     = $args{sql} || $self->diff(version => $version);

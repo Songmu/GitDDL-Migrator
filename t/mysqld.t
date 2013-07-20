@@ -39,14 +39,10 @@ $repo->run('add', File::Spec->catfile('sql', 'ddl.sql'));
 $repo->run('commit', '--author', 'Daisuke Murase <typester@cpan.org>',
                      '-m', 'initial commit');
 
-eval {
-    $gd->database_version;
-};
-ok $@, 'error ok';
-like $@, qr/Failed to get database version, please deploy first/, 'error msg ok';
+ok !$gd->database_version;
 
 $gd->deploy;
-#
+
 $gd->_dbh->do('INSERT INTO first (id, name) VALUES (1, "test")')
     or die $gd->_dbh->errstr;
 
