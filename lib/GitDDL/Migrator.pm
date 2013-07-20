@@ -14,6 +14,12 @@ use Try::Tiny;
 use Mouse;
 extends 'GitDDL';
 
+has ignore_tables => (
+    is      => 'ro',
+    isa     => 'ArrayRef',
+    default => sub { [] },
+);
+
 has _db => (
     is => 'ro',
     default => sub {
@@ -177,7 +183,11 @@ sub real_diff {
     })->compute_differences;
 
     my @tabls_to_create = @{ $diff->tables_to_create };
-    @tabls_to_create = grep {$_->name ne $self->version_table} @tabls_to_create;
+    @tabls_to_create = grep {sub {
+        my $table_name = shift;
+        return () if $table_name eq $self->version_table;
+        ! grep { $table_name eq $_ } @{ $self->ignore_tables };
+    }->($_->name) } @tabls_to_create;
     $diff->tables_to_create(\@tabls_to_create);
 
     my $diff_str = $diff->produce_diff_sql;
