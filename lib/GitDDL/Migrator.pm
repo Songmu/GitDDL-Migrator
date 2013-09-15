@@ -74,8 +74,11 @@ sub database_version {
 }
 
 sub deploy {
-    my ($self) = @_;
+    my $self = shift;
 
+    if (@_) {
+        croak q[GitDDL::Migrator#deploy doesn't accepts any arguments]
+    }
     if ($self->database_version) {
         croak "database already deployed, use upgrade_database instead";
     }
@@ -212,6 +215,17 @@ sub upgrade_database {
 
     $self->_do_sql($sql);
     $self->insert_version($version);
+}
+
+sub migrate {
+    my $self = shift;
+
+    if (!$self->database_version) {
+        $self->deploy(@_);
+    }
+    else {
+        $self->upgrade_database(@_);
+    }
 }
 
 sub insert_version {
