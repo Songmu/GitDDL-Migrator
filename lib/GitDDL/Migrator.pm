@@ -9,7 +9,6 @@ use Carp qw/croak/;
 use SQL::Translator;
 use SQL::Translator::Diff;
 use Time::HiRes qw/gettimeofday/;
-use Try::Tiny;
 
 use Mouse;
 extends 'GitDDL';
@@ -266,25 +265,106 @@ sub _restore_full_hash {
 }
 
 sub vacuum {
-    ...
+    die 'to be implemented';
+    # remove old verison hitosry.
 }
 
 1;
 __END__
 
+=for stopwords versioned
+
 =encoding utf-8
 
 =head1 NAME
 
-GitDDL::Migrator - It's new $module
+GitDDL::Migrator - database migration utility for git managed SQL extended L<GitDDL>
 
 =head1 SYNOPSIS
 
     use GitDDL::Migrator;
+    my $gd = GitDDL::Migrator->new(
+        work_tree => '/path/to/project', # git working directory
+        ddl_file  => 'sql/schema_ddl.sql',
+        dsn       => ['dbi:mysql:my_project', 'root', ''],
+    );
 
 =head1 DESCRIPTION
 
-GitDDL::Migrator is ...
+GitDDL::Migrator is database migration utility extended L<GitDDL>.
+
+L<GitDDL> is very cool module. It's very simple and developer friendly.
+I use it in development, But features of it is not enough in operation phase.
+
+e.g.
+
+=over
+
+=item save migration history
+
+=item rollback to previous version
+
+=item specify version
+
+=item specify SQL (sometimes L<SQL::Translator>'s output is wrong)
+
+=item check differences from versioned SQL and real database
+
+=back
+
+Then for solving them, I wrote GitDDL::Migrator.
+
+=head1 METHODS
+
+=head2 C<< GitDDL::Migrator->new(%options) >>
+
+Create GitDDL::Migrator object. Available options are:
+
+=over
+
+=item C<work_tree> => 'Str' (Required)
+
+Git working tree path includes target DDL file.
+
+=item C<ddl_file>  => 'Str' (Required)
+
+DDL file (.sql file) path in repository.
+
+If DDL file located at /repos/project/sql/schema.sql and work_tree root is /repos/project, then this option should be sql/schema.sql
+
+=item C<dsn> => 'ArrayRef' (Required)
+
+DSN parameter that pass to L<DBI> module.
+
+=item C<version_table> => 'Str' (optional)
+
+database table name that contains its git commit version. (default: git_ddl_version)
+
+=item C<ignore_tables> => 'ArrayRef' (optional)
+
+tables for ignoring when calling C<check_ddl_mismatch()>. (default: empty)
+
+=back
+
+=head2 C<< $gd->migrate(%opt) >>
+
+migrate database
+
+=head2 C<< $gd->real_diff >>
+
+display differences from versioned DDL and real database setting.
+
+=head2 C<< $gd->check_ddl_mismatch >>
+
+check differences from versioned DDL and real database setting.
+
+=head2 C<< $gd->get_rollback_version >>
+
+get previous database version.
+
+=head2 C<< $gd->rollback_diff >>
+
+display differences SQL from current version and previous version.
 
 =head1 LICENSE
 

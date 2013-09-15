@@ -1,14 +1,80 @@
 # NAME
 
-GitDDL::Migrator - It's new $module
+GitDDL::Migrator - database migration utility for git managed SQL extended [GitDDL](http://search.cpan.org/perldoc?GitDDL)
 
 # SYNOPSIS
 
     use GitDDL::Migrator;
+    my $gd = GitDDL::Migrator->new(
+        work_tree => '/path/to/project', # git working directory
+        ddl_file  => 'sql/schema_ddl.sql',
+        dsn       => ['dbi:mysql:my_project', 'root', ''],
+    );
 
 # DESCRIPTION
 
-GitDDL::Migrator is ...
+GitDDL::Migrator is database migration utility extended [GitDDL](http://search.cpan.org/perldoc?GitDDL).
+
+[GitDDL](http://search.cpan.org/perldoc?GitDDL) is very cool module. It's very simple and developer friendly.
+I use it in development, But features of it is not enough in operation phase.
+
+e.g.
+
+- save migration history
+- rollback to previous version
+- specify version
+- specify SQL (sometimes [SQL::Translator](http://search.cpan.org/perldoc?SQL::Translator)'s output is wrong)
+- check differences from versioned SQL and real database
+
+Then for solving them, I wrote GitDDL::Migrator.
+
+# METHODS
+
+## `GitDDL::Migrator->new(%options)`
+
+Create GitDDL::Migrator object. Available options are:
+
+- `work_tree` => 'Str' (Required)
+
+    Git working tree path includes target DDL file.
+
+- `ddl_file`  => 'Str' (Required)
+
+    DDL file (.sql file) path in repository.
+
+    If DDL file located at /repos/project/sql/schema.sql and work\_tree root is /repos/project, then this option should be sql/schema.sql
+
+- `dsn` => 'ArrayRef' (Required)
+
+    DSN parameter that pass to [DBI](http://search.cpan.org/perldoc?DBI) module.
+
+- `version_table` => 'Str' (optional)
+
+    database table name that contains its git commit version. (default: git\_ddl\_version)
+
+- `ignore_tables` => 'ArrayRef' (optional)
+
+    tables for ignoring when calling `check_ddl_mismatch()`. (default: empty)
+
+## `$gd->migrate(%opt)`
+
+migrate database
+
+## `$gd->real_diff`
+
+display differences from versioned DDL and real database setting.
+
+## `$gd->check_ddl_mismatch`
+
+check differences from versioned DDL and real database setting.
+
+## `$gd->get_rollback_version`
+
+get previous database version.
+
+## `$gd->rollback_diff`
+
+display differences SQL from current version and previous version.
 
 # LICENSE
 
