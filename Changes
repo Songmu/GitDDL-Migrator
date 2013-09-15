@@ -2,6 +2,10 @@ Revision history for Perl extension GitDDL-Migrator
 
 {{$NEXT}}
 
+0.02 2013-09-15T07:22:23Z
+
+    - suppress STDERR when calling `database_version`
+
 0.01 2013-09-15T06:44:49Z
 
     - original version
