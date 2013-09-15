@@ -67,7 +67,12 @@ sub database_version {
     croak sprintf 'invalid version_table: %s', $self->version_table
         unless $self->version_table =~ /^[a-zA-Z_]+$/;
 
-    my @versions = $self->_dbh->selectrow_array('SELECT version FROM ' . $self->version_table . ' ORDER BY upgraded_at DESC');
+    local $@;
+    my @versions = eval {
+        open my $fh, '>', \my $stderr;
+        local *STDERR = $fh;
+        $self->_dbh->selectrow_array('SELECT version FROM ' . $self->version_table . ' ORDER BY upgraded_at DESC');
+    };
 
     return $versions[$back];
 }
