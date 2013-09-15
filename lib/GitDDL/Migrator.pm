@@ -193,7 +193,7 @@ sub check_ddl_mismatch {
         unless $real_diff =~ /\A\s*-- No differences found;\s*\z/ms;
 }
 
-sub rollback_diff {
+sub get_rollback_version {
     my $self = shift;
 
     my $sth = $self->_dbh->prepare('SELECT version FROM ' . $self->version_table . ' ORDER BY upgraded_at DESC');
@@ -201,11 +201,15 @@ sub rollback_diff {
 
     my ($current_version) = $sth->fetchrow_array;
     my ($prev_version)    = $sth->fetchrow_array;
+    croak 'No rollback target is found' unless $prev_version;
 
-    croak 'No rollback target is found'
-        unless $prev_version;
+    $prev_version;
+}
 
-    $self->diff(version => $prev_version);
+sub rollback_diff {
+    my $self = shift;
+
+    $self->diff(version => $self->get_rollback_version);
 }
 
 sub upgrade_database {
