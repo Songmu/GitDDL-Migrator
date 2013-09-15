@@ -16,9 +16,9 @@ GitDDL::Migrator - database migration utility for git managed SQL extended [GitD
 GitDDL::Migrator is database migration utility extended [GitDDL](http://search.cpan.org/perldoc?GitDDL).
 
 [GitDDL](http://search.cpan.org/perldoc?GitDDL) is very cool module. It's very simple and developer friendly.
-I use it in development, But features of it is not enough in operation phase.
+I use it in development, but features of it are not enough in operation phase.
 
-e.g.
+Features needed at operation phases are: e.g.
 
 - save migration history
 - rollback to previous version
