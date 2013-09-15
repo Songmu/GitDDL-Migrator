@@ -83,16 +83,18 @@ sub deploy {
         croak "database already deployed, use upgrade_database instead";
     }
 
-    $self->_do_sql($self->_slurp(File::Spec->catfile($self->work_tree, $self->ddl_file)));
+    my $sql = $self->_slurp(File::Spec->catfile($self->work_tree, $self->ddl_file));
+    $self->_do_sql($sql);
 
     $self->_do_sql(<<"__SQL__");
 CREATE TABLE @{[ $self->version_table ]} (
-    version VARCHAR(40) NOT NULL,
-    upgraded_at VARCHAR(20) NOT NULL UNIQUE
+    version     VARCHAR(40) NOT NULL,
+    upgraded_at VARCHAR(20) NOT NULL UNIQUE,
+    sql_text    TEXT
 );
 __SQL__
 
-    $self->insert_version;
+    $self->_insert_version(undef, $sql);
 }
 
 sub _new_translator {
@@ -214,7 +216,7 @@ sub upgrade_database {
     my $sql     = $args{sql} || $self->diff(version => $version);
 
     $self->_do_sql($sql);
-    $self->insert_version($version);
+    $self->_insert_version($version, $sql);
 }
 
 sub migrate {
@@ -228,8 +230,8 @@ sub migrate {
     }
 }
 
-sub insert_version {
-    my ($self, $version) = @_;
+sub _insert_version {
+    my ($self, $version, $sql) = @_;
 
     $version ||= $self->ddl_version;
     unless (length($version) == 40) {
@@ -250,7 +252,7 @@ sub insert_version {
     );
 
     $self->_dbh->do(
-        "INSERT INTO @{[ $self->version_table ]} (version, upgraded_at) VALUES (?, ?)", {}, $version, $upgraded_at
+        "INSERT INTO @{[ $self->version_table ]} (version, upgraded_at, sql_text) VALUES (?, ?, ?)", {}, $version, $upgraded_at, $sql
     ) or croak $self->_dbh->errstr;
 }
 
