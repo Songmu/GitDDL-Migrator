@@ -78,17 +78,14 @@ sub database_version {
 }
 
 sub deploy {
-    my $self = shift;
+    my ($self,%args) = @_;
 
-    if (@_) {
-        croak q[GitDDL::Migrator#deploy doesn't accepts any arguments]
-    }
     if ($self->database_version) {
         croak "database already deployed, use upgrade_database instead";
     }
 
     my $sql = $self->_slurp(File::Spec->catfile($self->work_tree, $self->ddl_file));
-    $self->_do_sql($sql);
+    $args{only_gitddl_init} or $self->_do_sql($sql);
 
     $self->_do_sql(<<"__SQL__");
 CREATE TABLE @{[ $self->version_table ]} (
@@ -353,7 +350,8 @@ tables for ignoring when calling C<check_ddl_mismatch()>. (default: empty)
 
 =head2 C<< $gd->migrate(%opt) >>
 
-migrate database
+migrate database. 
+If your system already deployed but you wanna use this module , you should set only_gitddl_init option. You can create only version_table.
 
 =head2 C<< $gd->real_diff >>
 
