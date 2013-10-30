@@ -114,7 +114,7 @@ sub _new_translator_of_version {
     my ($self, $version) = @_;
 
     my $tmp_fh = File::Temp->new;
-    $self->_dump_sql_for_specified_coomit($version, $tmp_fh->filename);
+    $self->_dump_sql_for_specified_commit($version, $tmp_fh->filename);
 
     my $translator = $self->_new_translator;
     $translator->translate($tmp_fh->filename) or croak $translator->error;

@@ -2,6 +2,8 @@ Revision history for Perl extension GitDDL-Migrator
 
 {{$NEXT}}
 
+    - follow up GitDDL 0.03
+
 0.03 2013-09-20T04:51:30Z
 
     - fix deps
