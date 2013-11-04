@@ -44,12 +44,20 @@
       "runtime" : {
          "requires" : {
             "GitDDL" : "0.03",
+            "Mouse" : "0",
+            "SQL::Translator" : "0",
             "perl" : "5.008001"
          }
       },
       "test" : {
+         "recommends" : {
+            "Test::mysqld" : "0"
+         },
          "requires" : {
-            "Test::More" : "0.98"
+            "DBI" : "0",
+            "Test::Git" : "0",
+            "Test::More" : "0.98",
+            "Test::Requires" : "0"
          }
       }
    },

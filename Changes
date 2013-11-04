@@ -2,6 +2,10 @@ Revision history for Perl extension GitDDL-Migrator
 
 {{$NEXT}}
 
+    - don't `_insert_version` if no differences found in `upgrade_database`
+    - add create_version_table method. ref #1
+    - fix splice usage
+
 0.04 2013-10-30T09:12:08Z
 
     - follow up GitDDL 0.03

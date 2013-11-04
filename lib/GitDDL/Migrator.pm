@@ -381,7 +381,7 @@ display differences SQL from current version and previous version.
 
 =head2 C<< $gd->create_version_table >>
 
-Only create version table, don't deploy any other sqls. It is useful to apply C<GitDDL::Migrator> to existing databases.
+Only create version table, don't deploy any other SQLs. It is useful to apply C<GitDDL::Migrator> to existing databases.
 
 =head1 LICENSE
 

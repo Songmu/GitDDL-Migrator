@@ -76,6 +76,10 @@ get previous database version.
 
 display differences SQL from current version and previous version.
 
+## `$gd->create_version_table`
+
+Only create version table, don't deploy any other SQLs. It is useful to apply `GitDDL::Migrator` to existing databases.
+
 # LICENSE
 
 Copyright (C) Masayuki Matsuki.
