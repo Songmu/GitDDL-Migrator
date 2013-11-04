@@ -90,6 +90,12 @@ sub deploy {
     my $sql = $self->_slurp(File::Spec->catfile($self->work_tree, $self->ddl_file));
     $self->_do_sql($sql);
 
+    $self->create_version_table($sql);
+}
+
+sub create_version_table {
+    my ($self, $sql) = @_;
+
     $self->_do_sql(<<"__SQL__");
 CREATE TABLE @{[ $self->version_table ]} (
     version     VARCHAR(40) NOT NULL,
@@ -98,7 +104,7 @@ CREATE TABLE @{[ $self->version_table ]} (
 );
 __SQL__
 
-    $self->_insert_version(undef, $sql);
+    $self->_insert_version(undef, $sql || '');
 }
 
 sub _new_translator {
@@ -370,6 +376,10 @@ get previous database version.
 =head2 C<< $gd->rollback_diff >>
 
 display differences SQL from current version and previous version.
+
+=head2 C<< $gd->create_version_table >>
+
+Only create version table, don't deploy any other sqls. It is useful to apply C<GitDDL::Migrator> to existing databases.
 
 =head1 LICENSE
 
