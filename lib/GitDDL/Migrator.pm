@@ -49,7 +49,7 @@ has _real_translator => (
             for my $table ($schema->get_tables) {
                 my @options = $table->options;
                 if (my ($idx) = grep { $options[$_]->{AUTO_INCREMENT} } 0..$#options) {
-                    splice $table->options, $idx, 1;
+                    splice @{$table->options}, $idx, 1;
                 }
             }
         }
