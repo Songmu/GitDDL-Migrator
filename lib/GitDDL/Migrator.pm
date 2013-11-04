@@ -229,6 +229,8 @@ sub upgrade_database {
     my $version = $args{version};
     my $sql     = $args{sql} || $self->diff(version => $version);
 
+    return if $sql =~ /\A\s*\z/ms;
+
     $self->_do_sql($sql);
     $self->_insert_version($version, $sql);
 }
