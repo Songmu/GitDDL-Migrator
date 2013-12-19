@@ -168,7 +168,8 @@ sub diff {
     $self->_diff($from, $to);
 }
 
-sub real_diff {
+sub real_diff { goto \&diff_to_real_database }
+sub diff_to_real_database {
     my $self = shift;
 
     my $source = $self->_new_translator_of_version($self->database_version);
@@ -187,6 +188,33 @@ sub real_diff {
         ! grep { $table_name eq $_ } @{ $self->ignore_tables };
     }->($_->name) } @tabls_to_create;
     $diff->tables_to_create(\@tabls_to_create);
+
+    my $diff_str = $diff->produce_diff_sql;
+    # ignore first line
+    $diff_str =~ s/.*?\n//;
+
+    $diff_str;
+}
+
+sub diff_from_real_database {
+    my $self = shift;
+
+    my $target = $self->_new_translator_of_version($self->database_version);
+    my $real   = $self->_real_translator;
+
+    my $diff = SQL::Translator::Diff->new({
+        output_db     => $self->_db,
+        source_schema => $real->schema,
+        target_schema => $target->schema,
+    })->compute_differences;
+
+    my @tabls_to_drop = @{ $diff->tables_to_drop };
+    @tabls_to_drop = grep {sub {
+        my $table_name = shift;
+        return () if $table_name eq $self->version_table;
+        ! grep { $table_name eq $_ } @{ $self->ignore_tables };
+    }->($_->name) } @tabls_to_drop;
+    $diff->tables_to_drop(\@tabls_to_drop);
 
     my $diff_str = $diff->produce_diff_sql;
     # ignore first line
@@ -366,6 +394,14 @@ migrate database
 =head2 C<< $gd->real_diff >>
 
 display differences from versioned DDL and real database setting.
+
+=head2 C<< $gd->diff_to_real_database >>
+
+alias of C<real_diff>
+
+=head2 C<< $gd->diff_from_real_database >>
+
+display differences from real database setting and versioned DDL.
 
 =head2 C<< $gd->check_ddl_mismatch >>
 

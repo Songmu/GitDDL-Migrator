@@ -104,5 +104,6 @@ eval {
 };
 like $@, qr/^Mismatch between ddl version and real database is found/;
 like $@, qr/CREATE TABLE.*third/;
+like $gd->diff_from_real_database, qr/DROP TABLE.*third/;
 
 done_testing;
