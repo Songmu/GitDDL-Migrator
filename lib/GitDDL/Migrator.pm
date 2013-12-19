@@ -31,7 +31,7 @@ has _db => (
     },
 );
 
-has _real_translator => (
+has real_translator => (
     is      => 'ro',
     lazy    => 1,
     default => sub {
@@ -173,7 +173,7 @@ sub diff_to_real_database {
     my $self = shift;
 
     my $source = $self->_new_translator_of_version($self->database_version);
-    my $real   = $self->_real_translator;
+    my $real   = $self->real_translator;
 
     my $diff = SQL::Translator::Diff->new({
         output_db     => $self->_db,
@@ -200,7 +200,7 @@ sub diff_from_real_database {
     my $self = shift;
 
     my $target = $self->_new_translator_of_version($self->database_version);
-    my $real   = $self->_real_translator;
+    my $real   = $self->real_translator;
 
     my $diff = SQL::Translator::Diff->new({
         output_db     => $self->_db,
