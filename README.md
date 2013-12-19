@@ -64,6 +64,14 @@ migrate database
 
 display differences from versioned DDL and real database setting.
 
+## `$gd->diff_to_real_database`
+
+alias of `real_diff`
+
+## `$gd->diff_from_real_database`
+
+display differences from real database setting and versioned DDL.
+
 ## `$gd->check_ddl_mismatch`
 
 check differences from versioned DDL and real database setting.

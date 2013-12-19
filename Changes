@@ -2,6 +2,11 @@ Revision history for Perl extension GitDDL-Migrator
 
 {{$NEXT}}
 
+0.06 2013-12-19T07:05:00Z
+
+    - real_translator method up to public
+    - add diff_(to|from)_real_database method
+
 0.05 2013-11-04T05:35:05Z
 
     - don't `_insert_version` if no differences found in `upgrade_database`

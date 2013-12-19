@@ -4,7 +4,7 @@
       "Masayuki Matsuki <y.songmu@gmail.com>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Minilla/v0.8.0, CPAN::Meta::Converter version 2.132510",
+   "generated_by" : "Minilla/v0.11.0, CPAN::Meta::Converter version 2.132510",
    "license" : [
       "perl_5"
    ],
@@ -73,5 +73,5 @@
          "web" : "https://github.com/Songmu/GitDDL-Migrator"
       }
    },
-   "version" : "0.05"
+   "version" : "0.06"
 }
