@@ -1,6 +1,8 @@
 Revision history for Perl extension GitDDL-Migrator
 
 {{$NEXT}}
+
+0.07 2014-04-06T11:26:37Z
     - MySQL's TEXT type limited only 65535 byte. So change sql_text columns definition to LONGTEXT.
 
 0.06 2013-12-19T07:05:00Z
