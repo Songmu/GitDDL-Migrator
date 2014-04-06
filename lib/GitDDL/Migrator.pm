@@ -96,13 +96,13 @@ sub deploy {
 sub create_version_table {
     my ($self, $sql) = @_;
 
-    $self->_do_sql(<<"__SQL__");
-CREATE TABLE @{[ $self->version_table ]} (
+    $self->_do_sql(sprintf
+"CREATE TABLE @{[ $self->version_table ]} (
     version     VARCHAR(40) NOT NULL,
     upgraded_at VARCHAR(20) NOT NULL UNIQUE,
-    sql_text    TEXT
-);
-__SQL__
+    sql_text    %s
+);", $self->_db eq 'MySQL' ? 'LONGTEXT' : 'TEXT'
+    );
 
     $self->_insert_version(undef, $sql || '');
 }
