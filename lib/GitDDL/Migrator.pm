@@ -3,7 +3,7 @@ use 5.008001;
 use strict;
 use warnings;
 
-our $VERSION = "0.07";
+our $VERSION = "0.08";
 
 use Carp qw/croak/;
 use SQL::Translator;
@@ -369,7 +369,7 @@ Git working tree path includes target DDL file.
 
 =item C<ddl_file>  => 'Str' (Required)
 
-DDL file (.sql file) path in repository.
+DDL file ( .sql file) path in repository.
 
 If DDL file located at /repos/project/sql/schema.sql and work_tree root is /repos/project, then this option should be sql/schema.sql
 

@@ -2,6 +2,9 @@ Revision history for Perl extension GitDDL-Migrator
 
 {{$NEXT}}
 
+0.08 2016-04-10T04:39:26Z
+    - Replace has_git by test_requires_git (fix test only) (BooK)
+
 0.07 2014-04-06T11:26:37Z
     - MySQL's TEXT type limited only 65535 byte. So change sql_text columns definition to LONGTEXT.
 

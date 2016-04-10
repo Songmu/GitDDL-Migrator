@@ -1,6 +1,6 @@
 # NAME
 
-GitDDL::Migrator - database migration utility for git managed SQL extended [GitDDL](http://search.cpan.org/perldoc?GitDDL)
+GitDDL::Migrator - database migration utility for git managed SQL extended [GitDDL](https://metacpan.org/pod/GitDDL)
 
 # SYNOPSIS
 
@@ -13,9 +13,9 @@ GitDDL::Migrator - database migration utility for git managed SQL extended [GitD
 
 # DESCRIPTION
 
-GitDDL::Migrator is database migration utility extended [GitDDL](http://search.cpan.org/perldoc?GitDDL).
+GitDDL::Migrator is database migration utility extended [GitDDL](https://metacpan.org/pod/GitDDL).
 
-[GitDDL](http://search.cpan.org/perldoc?GitDDL) is very cool module. It's very simple and developer friendly.
+[GitDDL](https://metacpan.org/pod/GitDDL) is very cool module. It's very simple and developer friendly.
 I use it in development, but features of it are not enough in operation phase.
 
 Features needed at operation phases are: e.g.
@@ -23,7 +23,7 @@ Features needed at operation phases are: e.g.
 - save migration history
 - rollback to previous version
 - specify version
-- specify SQL (sometimes [SQL::Translator](http://search.cpan.org/perldoc?SQL::Translator)'s output is wrong)
+- specify SQL (sometimes [SQL::Translator](https://metacpan.org/pod/SQL::Translator)'s output is wrong)
 - check differences from versioned SQL and real database
 
 Then for solving them, I wrote GitDDL::Migrator.
@@ -40,13 +40,13 @@ Create GitDDL::Migrator object. Available options are:
 
 - `ddl_file`  => 'Str' (Required)
 
-    DDL file (.sql file) path in repository.
+    DDL file ( .sql file) path in repository.
 
     If DDL file located at /repos/project/sql/schema.sql and work\_tree root is /repos/project, then this option should be sql/schema.sql
 
 - `dsn` => 'ArrayRef' (Required)
 
-    DSN parameter that pass to [DBI](http://search.cpan.org/perldoc?DBI) module.
+    DSN parameter that pass to [DBI](https://metacpan.org/pod/DBI) module.
 
 - `version_table` => 'Str' (optional)
 
