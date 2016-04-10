@@ -2,6 +2,7 @@ use strict;
 use warnings;
 use Test::More;
 use Test::Git;
+use Test::Requires::Git;
 
 use File::Spec;
 use File::Path 'make_path';
@@ -9,7 +10,7 @@ use DBI;
 use Time::HiRes;
 use Test::Requires 'Test::mysqld';
 
-has_git;
+test_requires_git;
 
 use_ok 'GitDDL::Migrator';
 

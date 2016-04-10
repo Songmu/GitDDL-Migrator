@@ -12,6 +12,7 @@ on configure => sub {
 on test => sub {
     requires 'DBI';
     requires 'Test::Git';
+    requires 'Test::Requires::Git', '1.005';
     requires 'Test::More', '0.98';
     requires 'Test::Requires';
 
